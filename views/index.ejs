@@ -3,30 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Online Chess Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-    <div class="w-full flex flex-col items-center justify-evenly h-screen bg-zinc-900">
-        <h1 class="text-xl text-white pt-5" id="opponentStatus">Offline</h1>
-        <div class="flex md:flex-row flex-col items-center p-5">
-            <div class="chessboard w-96 h-96 bg-red-800"></div>
-            <div class="flex p-5 flex-col justify-evenly h-full">
-                <button class="bg-zinc-900 border-2 text-xl text-white" onclick="newGame()">New Game</button>
-                <form id="joinGameForm">
-                    <label class="text-white text-xl p-5" for="formroomId">RoomID: </label>
-                    <input type="text" name="roomId" id="formroomId" required>
-                    <button class="bg-zinc-900 border-2 text-xl text-white" type="submit">Join Game</button>
-                </form>
-            </div>
-        </div>
-        <h1 class="text-xl text-white pt-5" id="playerId">PlayerID: </h1>
-        <h1 class="text-xl text-white pt-5" id="roomId">RoomID: </h1>
+<body class="bg-zinc-900 text-white flex flex-col items-center justify-center min-h-screen">
+    <h1 class="text-2xl font-bold mt-4">Online Chess Game</h1>
+    
+    <!-- Game Info -->
+    <div class="mt-6 space-y-2 text-lg">
+        <p id="opponentStatus" class="text-gray-400">Opponent: Offline</p>
+        <p id="opponentMove" class="text-yellow-400"></p>
+        <p id="playerMove" class="text-green-400"></p>
+        <p id="playerId">PlayerID:</p>
+        <p id="roomId">RoomID:</p>
     </div>
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    <div class="flex flex-col md:flex-row items-center justify-center mt-5 w-full max-w-4xl p-5 gap-6">
+        <!-- Chessboard -->
+        <div class="relative w-80 h-80 bg-gray-800 rounded-lg shadow-lg chessboard"></div>
+        
+        <!-- Game Controls -->
+        <div class="flex flex-col space-y-4 w-80 p-5 bg-gray-800 rounded-lg shadow-lg">
+            <button class="bg-green-600 hover:bg-green-700 text-white text-lg py-2 px-4 rounded" onclick="newGame()">New Game</button>
+            
+            <form id="joinGameForm" class="flex flex-col space-y-3">
+                <label for="formroomIdJoin" class="text-lg">Room ID:</label>
+                <input type="text" name="roomId" id="formroomIdJoin" class="p-2 text-black rounded border" required>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white text-lg py-2 px-4 rounded" type="submit">Join Game</button>
+            </form>
+        </div>
+    </div>
+    
+    
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous"></script>
     <script src="/js/chessgame.js"></script>
 </body>
 </html>

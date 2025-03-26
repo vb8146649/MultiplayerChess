@@ -2,7 +2,8 @@ import express from "express";
 import http from "http";
 import {Server} from "socket.io";
 import { Chess } from "chess.js";
-import { copyFileSync } from "fs";
+
+const PORT = 3000;
 
 const initialChess = new Chess();
 const app = express();
@@ -22,7 +23,6 @@ app.get("/", (req, res) => {
 }); 
 
 function deleteDuplicateId(socket){
-    console.log(games);
     for (const roomId in games) {
         const { players } = games[roomId];
         
@@ -31,17 +31,13 @@ function deleteDuplicateId(socket){
         } else if (players.black === socket.id) {
             delete players.black;
         }
-    
-        // If the room is empty, delete it
+        
         if (!players.white && !players.black) {
-            if(roomId!=waitingRoom){
-                delete games[roomId];
+            if(waitingRoom===roomId){
+                waitingRoom=null;
             }
+            delete games[roomId];
         }
-        // } else if (players.white || players.black) {
-        //     io.to(roomId).emit("online", "offline");
-        //     waitingRoom = roomId; // Set back to waiting if one player left
-        // }
     }
     for (const roomId in games) {
         const { players } = games[roomId];
@@ -56,6 +52,7 @@ function deleteDuplicateId(socket){
             }
         }
     }
+    console.log(games);
 }
 io.on("connection", (socket) => {
     console.log("a user connected");
@@ -70,11 +67,10 @@ io.on("connection", (socket) => {
             if(!games[roomId].players.white){
                 games[roomId].players.white = socket.id;
                 socket.emit("playerRole", {room:roomId,role:"w",Id:socket.id});
-            }else{
+            }else if(!games[roomId].players.black){
                 games[roomId].players.black = socket.id;
                 socket.emit("playerRole", {room:roomId,role:"b",Id:socket.id});
             }
-            games[roomId].players.black = socket.id; // Assign as Black
             waitingRoom = null; // Room is now full
             io.to(roomId).emit("online", "online");
         } else {
@@ -108,6 +104,7 @@ io.on("connection", (socket) => {
             games[roomId].players.black=socket.id;
             socket.emit("playerRole",{room:roomId,role:"b",Id:socket.id});
         }else{
+            socket.join(roomId);
             socket.emit("playerRole",{room:roomId,role:null,Id:socket.id});
         }
     });
@@ -128,6 +125,7 @@ io.on("connection", (socket) => {
             if(chess.turn() ==="b" && socket.id!==games[roomId].players.black){
                 return;
             }
+
             const result =chess.move(move);
             if(result){
                 currentPlayer=chess.turn();
@@ -151,6 +149,7 @@ io.on("connection", (socket) => {
                     games[roomId].chess.reset();
                     io.to(roomId).emit("gameOver", { message: resultMessage });
                 }
+                io.to(roomId).emit("playerMove",currentPlayer);
             }else{
                 console.log("Invalid move",move);
                 socket.emit("invalidMove",move);

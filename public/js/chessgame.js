@@ -11,7 +11,6 @@ let playerId =null;
 
 const renderBoard=()=>{
     const board=chess.board();
-    console.log("player role",playerRole);
     boardElement.innerHTML = "";
     board.forEach((row, rowindex) => {
         row.forEach((square, squareindex) => {
@@ -72,7 +71,7 @@ const handleMove=(source,target)=>{
         to:`${String.fromCharCode(97+target.col)}${8-target.row}`,
         promotion:'q'
     }
-    if ((source.row === 1 && target.row === 0) || (source.row === 6 && target.row === 7)) {
+    if (((source.row === 1 && target.row === 0) || (source.row === 6 && target.row === 7)) && chess.get(move.from).type==="p") {
         // Ask user for promotion piece
         const promotionChoice = prompt("Promote to (q = Queen, r = Rook, b = Bishop, n = Knight):", "q");
         if (["q", "r", "b", "n"].includes(promotionChoice)) {
@@ -82,6 +81,18 @@ const handleMove=(source,target)=>{
     clearHighlights();
     socket.emit("move",{roomId,move});
 };
+
+socket.on("playerMove",(playerMove)=>{
+    console.log(playerMove);
+    if(playerMove===playerRole){
+        document.getElementById("playerMove").innerText="Your Move";
+        document.getElementById("opponentMove").innerText=" ";
+    }else{
+        document.getElementById("opponentMove").innerText="Opponent Move";
+        document.getElementById("playerMove").innerText=" ";
+    }
+})
+
 const unicodePieces={
     "k": "♚",  // Black King
     "q": "♛",  // Black Queen
@@ -131,7 +142,6 @@ socket.on("boardState",(fen)=>{
 
 socket.on("online",(status)=>{
     document.getElementById("opponentStatus").innerText=status;
-    console.log(status);
 })
 
 socket.on("move",(move)=>{
@@ -148,7 +158,7 @@ function newGame(){
 
 document.getElementById("joinGameForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    const roomId = document.getElementById("formroomId").value;
+    const roomId = document.getElementById("formroomIdJoin").value;
     console.log(roomId);
     socket.emit("joinGame",roomId);
 });
@@ -157,7 +167,6 @@ document.getElementById("joinGameForm").addEventListener("submit", (e) => {
 socket.on("gameOver",({message})=>{
     alert(message);
     chess.reset();
-    renderBoard();
 })
 
 renderBoard();
